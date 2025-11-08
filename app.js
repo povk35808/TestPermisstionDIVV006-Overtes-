@@ -683,22 +683,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // === START: NEW Validation Functions ===
-    function validateLeaveForm() {
-        // ពិនិត្យមើលថា "រយៈពេល" ត្រូវបានជ្រើសរើស (មិនមែន null)
-        const isDurationValid = !!selectedLeaveDuration;
-        // ពិនិត្យមើលថា "មូលហេតុ" មិនទទេ (ព្រោះវាអនុញ្ញាតឱ្យ custom)
-        const isReasonValid = selectedLeaveReason && selectedLeaveReason.trim() !== '';
+   // (នៅក្រោម function updateLeaveDateFields)
 
-        // បង្ហាញប៊ូតុង លុះត្រាតែ ទាំងពីរត្រឹមត្រូវ
+    // === START: MODIFIED Validation Functions ===
+    function validateLeaveForm() {
+        const isDurationValid = !!selectedLeaveDuration;
+        const currentReason = selectedLeaveReason || ''; // យក Reason បច្ចុប្បន្ន
+        
+        let isReasonValid = true;
+        let reasonErrorMessage = ""; // សារ Error
+
+        // 1. ពិនិត្យមើលថា "មូលហេតុ" មិនទទេ
+        if (!currentReason || currentReason.trim() === '') {
+            isReasonValid = false;
+            reasonErrorMessage = ""; // មិនបាច់បង្ហាញ Error បើគ្រាន់តែទទេ (ប៊ូតុងនឹងមិនបង្ហាញ)
+        } 
+        // 2. (NEW) ពិនិត្យមើលពាក្យ "ទៅ"
+        else if (currentReason.includes("ទៅ")) {
+            isReasonValid = false;
+            reasonErrorMessage = 'សូមលោកអ្នកពិនិត្យមើល "មូលហេតុ"ឡើងវិញ!!!';
+        }
+
+        // បង្ហាញ ឬ លាក់ សារ Error សម្រាប់ "មូលហេតុ"
+        if (!isReasonValid && reasonErrorMessage) {
+            // បង្ហាញ Error
+            if (leaveRequestErrorEl) {
+                leaveRequestErrorEl.textContent = reasonErrorMessage;
+                leaveRequestErrorEl.classList.remove('hidden');
+            }
+        } else {
+            // លាក់ Error (ប្រសិនបើវា Valid ឬ គ្រាន់តែទទេ)
+            if (leaveRequestErrorEl) {
+                leaveRequestErrorEl.classList.add('hidden');
+            }
+        }
+
+        // បង្ហាញ/លាក់ប៊ូតុង (ត្រូវតែ Valid ទាំងពីរ)
         animateSubmitButton(submitLeaveRequestBtn, isDurationValid && isReasonValid);
     }
 
     function validateOutForm() {
+        // (Function នេះទុកនៅដដែល មិនមានការកែប្រែ)
         const isDurationValid = !!selectedOutDuration;
         const isReasonValid = selectedOutReason && selectedOutReason.trim() !== '';
         
         animateSubmitButton(submitOutRequestBtn, isDurationValid && isReasonValid);
     }
+    // === END: MODIFIED Validation Functions ===
     // === END: NEW Validation Functions ===
     
     // --- Request Form Event Listeners (Calling Requests.js) ---
@@ -736,6 +767,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (submitLeaveRequestBtn) submitLeaveRequestBtn.addEventListener('click', () => {
         selectedLeaveDuration = leaveDurations.includes(leaveDurationSearchInput.value) ? leaveDurationSearchInput.value : null; 
         selectedLeaveReason = leaveReasonSearchInput.value;
+
+        // === START: NEW VALIDATION RULE (Safety Net) ===
+        if (selectedLeaveReason && selectedLeaveReason.includes("ទៅ")) {
+            if (leaveRequestErrorEl) {
+                leaveRequestErrorEl.textContent = 'សូមលោកអ្នកពិនិត្យមើល "មូលហេតុ"ឡើងវិញ!!!';
+                leaveRequestErrorEl.classList.remove('hidden');
+            }
+            return; // បញ្ឈប់ការ Submit
+        }
+        // === END: NEW VALIDATION RULE ===
+
+        // (កូដ Requests.submitLeaveRequest... ទុកនៅដដែល)
         Requests.submitLeaveRequest(
             db, 
             auth, 
