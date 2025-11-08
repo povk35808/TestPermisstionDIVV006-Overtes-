@@ -103,11 +103,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (closeInvoiceModalBtn) closeInvoiceModalBtn.addEventListener('click', () => Requests.hideInvoiceModal(invoiceModal, invoiceShareStatus, shareInvoiceBtn));
     if (shareInvoiceBtn) shareInvoiceBtn.addEventListener('click', ()=> Requests.shareInvoiceAsImage(invoiceContent, invoiceContentWrapper, shareInvoiceBtn, invoiceShareStatus, showCustomAlert));
     
-    // === ស្វែងរក Listener នេះ ហើយជំនួសវា ===
+    // === NEW: Announcement Listener (MODIFIED to not use localStorage) ===
     if (announcementCloseBtn) {
         announcementCloseBtn.addEventListener('click', () => {
             if (announcementModal) announcementModal.classList.add('hidden');
-            // បានលុប localStorage.setItem ចេញពីទីនេះ ព្រោះសារត្រូវបង្ហាញរាល់ពេល
         });
     }
     // === END: NEW Announcement Listener ===
@@ -130,34 +129,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (scanFaceBtn) scanFaceBtn.disabled = (id === null || !modelStatusEl || modelStatusEl.textContent !== 'Model ស្កេនមុខបានទាញយករួចរាល់');
         console.log("Selected User ID:", selectedUserId);
     });
-    // ... (Dropdown សម្រាប់ user-search) ...
-
-    // កែសម្រួល Dropdown នេះ
+    
+    // === MODIFIED Dropdowns to include validation ===
     setupSearchableDropdown('leave-duration-search', 'leave-duration-dropdown', leaveDurationItems, (duration) => { 
         selectedLeaveDuration = duration; 
         updateLeaveDateFields(duration); 
-        validateLeaveForm(); // <-- បន្ថែមទីនេះ
+        validateLeaveForm(); // <-- ADDED
     }, false);
-
-    // កែសម្រួល Dropdown នេះ
     setupSearchableDropdown('leave-reason-search', 'leave-reason-dropdown', leaveReasonItems, (reason) => { 
         selectedLeaveReason = reason; 
-        validateLeaveForm(); // <-- បន្ថែមទីនេះ
+        validateLeaveForm(); // <-- ADDED
     }, true);
-
-    // កែសម្រួល Dropdown នេះ
     setupSearchableDropdown('out-duration-search', 'out-duration-dropdown', outDurationItems, (duration) => { 
         selectedOutDuration = duration; 
-        validateOutForm(); // <-- បន្ថែមទីនេះ
+        validateOutForm(); // <-- ADDED
     }, false);
-
-    // កែសម្រួល Dropdown នេះ
     setupSearchableDropdown('out-reason-search', 'out-reason-dropdown', outReasonItems, (reason) => { 
         selectedOutReason = reason; 
-        validateOutForm(); // <-- បន្ថែមទីនេះ
+        validateOutForm(); // <-- ADDED
     }, true);
+    // === END MODIFIED Dropdowns ===
 
-    // ... (Dropdown សម្រាប់ edit-duration-search) ...
+    setupSearchableDropdown('edit-duration-search', 'edit-duration-dropdown', [], () => {}, false); 
+    setupSearchableDropdown('edit-reason-search', 'edit-reason-dropdown', [], () => {}, true);
+
     // --- Firebase Initialization & Auth ---
     try { 
         if (!firebaseConfig.projectId) throw new Error("projectId not provided in firebase.initializeApp."); 
@@ -245,7 +240,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         } 
         if(loginPage) loginPage.classList.add('hidden'); 
     }
-
     // --- Main App Logic ---
     function initializeAppFlow() { 
         console.log("initializeAppFlow called (for non-remembered user)."); 
@@ -382,7 +376,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     function populateUserDropdown(users, inputId, dropdownId, onSelectCallback) { const userItems = users.filter(user => user.id && user.name).map(user => ({ text: `${user.id} - ${user.name}`, value: user.id })); setupSearchableDropdown(inputId, dropdownId, userItems, onSelectCallback, false); }
-  // --- Face Scan Logic ---
+
+    // --- Face Scan Logic ---
     async function startFaceScan() { 
         console.log("startFaceScan called."); 
         if (!selectedUserId) { 
@@ -477,9 +472,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         signInAnonymously(auth).catch(err => console.error("Error signing in anonymously after logout:", err)); 
     }
     
-    // --- ស្វែងរក function នេះ ហើយកែសម្រួលផ្នែកខាងក្នុង ---
     function showLoggedInState(user) { 
-        // === START: NEW ANNOUNCEMENT LOGIC (កែសម្រួល) ===
+        // === START: NEW ANNOUNCEMENT LOGIC (MODIFIED to show every time) ===
         // 1. កំណត់ ID សម្រាប់សារនេះ
         const ANNOUNCEMENT_ID = 'announcement_09112025_independence_day';
         // 2. ដាក់សាររបស់អ្នកនៅទីនេះ
@@ -495,7 +489,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // === END: NEW ANNOUNCEMENT LOGIC ===
 
         currentUser = user; 
-        FaceScanner.clearReferenceDescriptor();
+        FaceScanner.clearReferenceDescriptor(); 
         
         // NEW: កំណត់តួនាទី Approver
         isApprover = (user.id === 'D1001'); // ឧទាហរណ៍: បើ ID ស្មើ 'D1001' គឺជា Approver
@@ -623,12 +617,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (historyContent) historyContent.scrollTop = 0; 
     }
     // === END: MODIFIED History Page Tabs & Swipe ===
-                          if (historyTabLeave) historyTabLeave.addEventListener('click', () => showHistoryTab('leave'));
+    
+    if (historyTabLeave) historyTabLeave.addEventListener('click', () => showHistoryTab('leave'));
     if (historyTabOut) historyTabOut.addEventListener('click', () => showHistoryTab('out'));
     function handleTouchStart(evt) { const firstTouch = evt.touches[0]; touchstartX = firstTouch.clientX; isSwiping = true; }
     function handleTouchMove(evt) { if (!isSwiping) return; const touch = evt.touches[0]; touchendX = touch.clientX; }
     function handleTouchEnd(evt) { if (!isSwiping) return; isSwiping = false; const threshold = 50; const swipedDistance = touchendX - touchstartX; if (Math.abs(swipedDistance) > threshold) { if (swipedDistance < 0) { console.log("Swiped Left"); showHistoryTab('out', true); } else { console.log("Swiped Right"); showHistoryTab('leave', true); } } else { console.log("Swipe distance too short or vertical scroll."); } touchstartX = 0; touchendX = 0; }
-
     // === START: NEW APPROVER PAGE LOGIC ===
     let currentApproverTab = 'pending';
     function showApproverTab(tabName) {
@@ -687,8 +681,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             leaveEndDateInput.min = today; 
         } 
     }
-    } 
-    }
 
     // === START: NEW Validation Functions ===
     function validateLeaveForm() {
@@ -728,7 +720,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (leaveDateRangeContainer) leaveDateRangeContainer.classList.add('hidden'); 
         if (leaveRequestErrorEl) leaveRequestErrorEl.classList.add('hidden'); 
         if (leaveRequestLoadingEl) leaveRequestLoadingEl.classList.add('hidden'); 
-        if (submitLeaveRequestBtn) submitLeaveRequestBtn.disabled = false; 
+        
+        // === MODIFICATION (Hide button on open) ===
+        if (submitLeaveRequestBtn) {
+             submitLeaveRequestBtn.disabled = false; 
+             animateSubmitButton(submitLeaveRequestBtn, false); // លាក់ប៊ូតុងពេលបើកទំព័រ
+        }
+        // === END MODIFICATION ===
+
         navigateTo('page-request-leave'); 
     });
     
@@ -748,7 +747,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
     });
 
-    // --- ស្វែងរក Listener នេះ ហើយជំនួសវា ---
     if (openOutRequestBtn) openOutRequestBtn.addEventListener('click', () => { 
         if (!currentUser) return showCustomAlert("Error", "សូម Login ជាមុនសិន។"); 
         
@@ -768,7 +766,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         selectedOutReason = null; 
         if (outRequestErrorEl) outRequestErrorEl.classList.add('hidden'); 
         if (outRequestLoadingEl) outRequestLoadingEl.classList.add('hidden'); 
-        if (submitOutRequestBtn) submitOutRequestBtn.disabled = false; 
+        
+        // === MODIFICATION (Hide button on open) ===
+        if (submitOutRequestBtn) {
+            submitOutRequestBtn.disabled = false; 
+            animateSubmitButton(submitOutRequestBtn, false); // លាក់ប៊ូតុងពេលបើកទំព័រ
+        }
+        // === END MODIFICATION ===
+        
         navigateTo('page-request-out'); 
     });
     
@@ -791,7 +796,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Custom Alert Modal Logic ---
     function showCustomAlert(title, message, type = 'warning') { if (!customAlertModal) return; if (customAlertTitle) customAlertTitle.textContent = title; if (customAlertMessage) customAlertMessage.textContent = message; if (type === 'success') { if (customAlertIconSuccess) customAlertIconSuccess.classList.remove('hidden'); if (customAlertIconWarning) customAlertIconWarning.classList.add('hidden'); } else { if (customAlertIconSuccess) customAlertIconSuccess.classList.add('hidden'); if (customAlertIconWarning) customAlertIconWarning.classList.remove('hidden'); } customAlertModal.classList.remove('hidden'); }
-    function hideCustomAlert() { if (customAlertModal) customAlertModal.classList.add('hidden'); }
     function hideCustomAlert() { if (customAlertModal) customAlertModal.classList.add('hidden'); }
 
     // === START: NEW Animation Function ===
