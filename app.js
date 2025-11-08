@@ -518,14 +518,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const ANNOUNCEMENT_MESSAGE = "សួស្ដីប្អូបនៗទាំងអស់គ្នា ថ្ងៃទី០៩ វិច្ឆការ ២០២៥ នេះជាថ្ងៃនៃពិធីបុណ្យឯករាជ្យជាតិ ខួបលើកទី ៧២ ដែលខាងសាលាមានការឈប់សម្រាកសិក្សា ដូច្នោះការងារក្នុង DI ប្អូនៗត្រូវវេនធ្វើការពេលយប់ត្រូវប្ដូរវេនមកធ្វើការពេលថ្ងៃ ដោយឡែកពេលយប់ DI ត្រូវបិទ។ សូមអរគុណ!!!";
         
         // បានលុប 'hasRead' check ដើម្បីឱ្យវាបង្ហាញរាល់ពេល
-        /* // (Hide this logic if you want to show it every time)
+         // (Hide this logic if you want to show it every time)
         if (announcementModal) { 
             console.log(`Showing announcement: ${ANNOUNCEMENT_ID}`);
             if (announcementMessage) announcementMessage.textContent = ANNOUNCEMENT_MESSAGE;
             if (announcementCloseBtn) announcementCloseBtn.dataset.announcementId = ANNOUNCEMENT_ID;
             announcementModal.classList.remove('hidden');
         }
-        */
+        
         // === END: NEW ANNOUNCEMENT LOGIC ===
 
         currentUser = user; 
