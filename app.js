@@ -130,13 +130,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (scanFaceBtn) scanFaceBtn.disabled = (id === null || !modelStatusEl || modelStatusEl.textContent !== 'Model ស្កេនមុខបានទាញយករួចរាល់');
         console.log("Selected User ID:", selectedUserId);
     });
-    setupSearchableDropdown('leave-duration-search', 'leave-duration-dropdown', leaveDurationItems, (duration) => { selectedLeaveDuration = duration; updateLeaveDateFields(duration); }, false);
-    setupSearchableDropdown('leave-reason-search', 'leave-reason-dropdown', leaveReasonItems, (reason) => { selectedLeaveReason = reason; }, true);
-    setupSearchableDropdown('out-duration-search', 'out-duration-dropdown', outDurationItems, (duration) => { selectedOutDuration = duration; }, false);
-    setupSearchableDropdown('out-reason-search', 'out-reason-dropdown', outReasonItems, (reason) => { selectedOutReason = reason; }, true);
-    setupSearchableDropdown('edit-duration-search', 'edit-duration-dropdown', [], () => {}, false); 
-    setupSearchableDropdown('edit-reason-search', 'edit-reason-dropdown', [], () => {}, true);
+    // ... (Dropdown សម្រាប់ user-search) ...
 
+    // កែសម្រួល Dropdown នេះ
+    setupSearchableDropdown('leave-duration-search', 'leave-duration-dropdown', leaveDurationItems, (duration) => { 
+        selectedLeaveDuration = duration; 
+        updateLeaveDateFields(duration); 
+        validateLeaveForm(); // <-- បន្ថែមទីនេះ
+    }, false);
+
+    // កែសម្រួល Dropdown នេះ
+    setupSearchableDropdown('leave-reason-search', 'leave-reason-dropdown', leaveReasonItems, (reason) => { 
+        selectedLeaveReason = reason; 
+        validateLeaveForm(); // <-- បន្ថែមទីនេះ
+    }, true);
+
+    // កែសម្រួល Dropdown នេះ
+    setupSearchableDropdown('out-duration-search', 'out-duration-dropdown', outDurationItems, (duration) => { 
+        selectedOutDuration = duration; 
+        validateOutForm(); // <-- បន្ថែមទីនេះ
+    }, false);
+
+    // កែសម្រួល Dropdown នេះ
+    setupSearchableDropdown('out-reason-search', 'out-reason-dropdown', outReasonItems, (reason) => { 
+        selectedOutReason = reason; 
+        validateOutForm(); // <-- បន្ថែមទីនេះ
+    }, true);
+
+    // ... (Dropdown សម្រាប់ edit-duration-search) ...
     // --- Firebase Initialization & Auth ---
     try { 
         if (!firebaseConfig.projectId) throw new Error("projectId not provided in firebase.initializeApp."); 
@@ -666,6 +687,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             leaveEndDateInput.min = today; 
         } 
     }
+    } 
+    }
+
+    // === START: NEW Validation Functions ===
+    function validateLeaveForm() {
+        // ពិនិត្យមើលថា "រយៈពេល" ត្រូវបានជ្រើសរើស (មិនមែន null)
+        const isDurationValid = !!selectedLeaveDuration;
+        // ពិនិត្យមើលថា "មូលហេតុ" មិនទទេ (ព្រោះវាអនុញ្ញាតឱ្យ custom)
+        const isReasonValid = selectedLeaveReason && selectedLeaveReason.trim() !== '';
+
+        // បង្ហាញប៊ូតុង លុះត្រាតែ ទាំងពីរត្រឹមត្រូវ
+        animateSubmitButton(submitLeaveRequestBtn, isDurationValid && isReasonValid);
+    }
+
+    function validateOutForm() {
+        const isDurationValid = !!selectedOutDuration;
+        const isReasonValid = selectedOutReason && selectedOutReason.trim() !== '';
+        
+        animateSubmitButton(submitOutRequestBtn, isDurationValid && isReasonValid);
+    }
+    // === END: NEW Validation Functions ===
     
     // --- Request Form Event Listeners (Calling Requests.js) ---
     if (openLeaveRequestBtn) openLeaveRequestBtn.addEventListener('click', () => { 
@@ -750,6 +792,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Custom Alert Modal Logic ---
     function showCustomAlert(title, message, type = 'warning') { if (!customAlertModal) return; if (customAlertTitle) customAlertTitle.textContent = title; if (customAlertMessage) customAlertMessage.textContent = message; if (type === 'success') { if (customAlertIconSuccess) customAlertIconSuccess.classList.remove('hidden'); if (customAlertIconWarning) customAlertIconWarning.classList.add('hidden'); } else { if (customAlertIconSuccess) customAlertIconSuccess.classList.add('hidden'); if (customAlertIconWarning) customAlertIconWarning.classList.remove('hidden'); } customAlertModal.classList.remove('hidden'); }
     function hideCustomAlert() { if (customAlertModal) customAlertModal.classList.add('hidden'); }
+    function hideCustomAlert() { if (customAlertModal) customAlertModal.classList.add('hidden'); }
+
+    // === START: NEW Animation Function ===
+    /**
+     * បង្ហាញ ឬ លាក់ប៊ូតុង Submit ជាមួយ Animation
+     * @param {HTMLElement} buttonEl - ប៊ូតុងដែលត្រូវបង្ហាញ/លាក់
+     * @param {boolean} show - True (បង្ហាញ), False (លាក់)
+     */
+    function animateSubmitButton(buttonEl, show) {
+        if (!buttonEl) return;
+
+        if (show) {
+            // បើប៊ូតុងកំពុងបង្ហាញស្រាប់ មិនបាច់ធ្វើអ្វីទេ
+            if (!buttonEl.classList.contains('hidden')) return; 
+
+            buttonEl.classList.remove('hidden');
+            // ប្រើ setTimeout តូចមួយ (10ms) ដើម្បីឱ្យ Browser ចាប់ផ្តើម Animation
+            setTimeout(() => {
+                buttonEl.classList.remove('opacity-0', 'translate-y-2');
+            }, 10);
+        } else {
+            // បើប៊ូតុងកំពុងលាក់ស្រាប់ មិនបាច់ធ្វើអ្វីទេ
+            if (buttonEl.classList.contains('hidden')) return;
+
+            buttonEl.classList.add('opacity-0', 'translate-y-2');
+            // លាក់ប៊ូតុង បន្ទាប់ពី Animation ចប់ (300ms)
+            setTimeout(() => {
+                buttonEl.classList.add('hidden');
+            }, 300); // ត្រូវតែដូចគ្នានឹង 'duration-300' ក្នុង HTML
+        }
+    }
+    // === END: NEW Animation Function ===
 
     // === START: MODIFICATION (Pending Alert Logic Updated) ===
     function showPendingAlert(message) {
