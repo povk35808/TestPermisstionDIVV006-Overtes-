@@ -344,6 +344,27 @@
     <div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 hidden p-4"> <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center"> <input type="hidden" id="delete-request-id"> <input type="hidden" id="delete-collection-type"> <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /> </svg> <h3 class="text-xl font-bold mt-4 mb-2">លុបសំណើ?</h3> <p class="text-gray-600 mb-6">តើអ្នកពិតជាចង់លុបសំណើនេះមែនទេ? សកម្មភាពនេះ មិនអាចបកក្រោយបានទេ។</p> <div class="flex justify-center space-x-3"> <button id="cancel-delete-btn" class="bg-gray-200 text-gray-800 py-2 px-5 rounded-lg font-semibold hover:bg-gray-300"> បោះបង់ </button> <button id="delete-confirm-btn" class="bg-red-600 text-white py-2 px-5 rounded-lg font-semibold shadow-md hover:bg-red-700"> យល់ព្រមលុប </button> </div> </div> </div>
     <div id="custom-alert-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 hidden p-4"> <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center"> <svg id="custom-alert-icon-warning" xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /> </svg> <svg id="custom-alert-icon-success" xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-green-500 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /> </svg> <h3 id="custom-alert-title" class="text-xl font-bold mt-4 mb-2 text-gray-800">...</h3> <p id="custom-alert-message" class="text-gray-600 mb-6 whitespace-pre-line text-sm">...</p> <div class="flex justify-center"> <button id="custom-alert-ok-btn" class="bg-blue-600 text-white py-2 px-8 rounded-lg font-semibold shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"> យល់ព្រម </button> </div> </div> </div>
 
+    <div id="agreement-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 hidden p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h3 id="agreement-title" class="text-xl font-bold mb-4 text-gray-800">...</h3>
+            
+            <div class="max-h-60 overflow-y-auto mb-6 pr-2">
+                <div id="agreement-message" class="text-gray-600 whitespace-pre-line text-sm text-left">...</div>
+            </div>
+            
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <input id="agreement-checkbox" type="checkbox" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label for="agreement-checkbox" class="text-sm font-medium text-gray-700">ខ្ញុំបានអាន និងយល់ព្រម</label>
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6">
+                <button id="agreement-cancel-btn" type="button" class="bg-gray-200 text-gray-800 py-2 px-5 rounded-lg font-semibold hover:bg-gray-300">បោះបង់</button>
+                <button id="agreement-agree-btn" type="button" class="bg-blue-600 text-white py-2 px-5 rounded-lg font-semibold shadow-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    យល់ព្រម
+                </button>
+            </div>
+        </div>
+    </div>
     <div id="announcement-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 hidden p-4">
         <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
